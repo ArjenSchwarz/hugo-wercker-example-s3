@@ -1,7 +1,7 @@
 box: debian
 build:
   steps:
-    - arjen/hugo-build@1.8.1:
+    - arjen/hugo-build:
         version: "0.15"
         theme: herring-cove
         flags: --buildDrafts=true
@@ -12,17 +12,9 @@ build:
 
 deploy:
   steps:
-    - script:
-        name: ls output
-        code: |
-          ls -haltr /pipeline/output
-    - script:
-        name: ls source
-        code: |
-          ls -haltr /pipeline/source
-    - install-packages:
-        packages: git ssh-client liberror-perl
-    - lukevivier/gh-pages@0.2.1:
-        token: $GIT_TOKEN
-        domain: hugo-wercker.ig.nore.me
-        basedir: public
+    - s3sync:
+        key_id: $AWS_ACCESS_KEY_ID
+        key_secret: $AWS_SECRET_ACCESS_KEY
+        bucket_url: $AWS_BUCKET_URL
+        source_dir: public/
+        opts: --cf-invalidate
